@@ -11,7 +11,7 @@ bot.on('ready', () => {
     font('AgarBot', 'Doom', art => {
         console.log(art);
     });
-    bot.user.setActivity(`a.help`, { type: 'PLAYING' });
+    bot.user.setActivity(`${config.prefix}help`, { type: 'PLAYING' });
     bot.on('message', async msg => {
         if (msg.author.bot || msg.channel.type === 'dm') return;
         if (!msg.content.startsWith(prefix)) return;
