@@ -1,5 +1,5 @@
 {
-  "token": "",
-  "protocolKey": "",
-  "prefix": "a."
+  "token": "", // bot token
+  "protocolKey": "", // x client version
+  "prefix": "a." // bot prefix
 }
