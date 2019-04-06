@@ -27,7 +27,7 @@ bot.on('ready', () => {
 
             case 'help':
                 embed = new RichEmbed();
-                embed.addField('Commands', 'a.party\na.agar\na.invite\na.ping');
+                embed.addField('Commands', `${config.prefix}party\n${config.prefix}agar\n${config.prefix}invite\n${config.prefix}ping`);
                 embed.setColor('RANDOM');
                 msg.channel.send(embed);
                 break;
@@ -37,8 +37,8 @@ bot.on('ready', () => {
                     embed = new RichEmbed();
                     embed.setColor('RANDOM');
                     embed.addField('Agar.io Regions', 'CN (China)\nTK (Turkey)\nEU (Europe)\nUS (Atlanta)\nBR (Brazil)\nJP (Tokyo)\nRU (Russia)\nSG (Singapore)');
-                    embed.addField('Creating party', 'a.party region');
-                    embed.addField('Checking party', 'a.party code');
+                    embed.addField('Creating party', `${config.prefix}party region`);
+                    embed.addField('Checking party', `${config.prefix}party code`);
                     return msg.channel.send(embed);
                 }
                 if (args[1].length == 2) {
@@ -87,8 +87,8 @@ bot.on('ready', () => {
                             embed = new RichEmbed();
                             embed.setColor('RANDOM');
                             embed.addField('Agar.io Regions', 'CN (China)\nTK (Turkey)\nEU (Europe)\nUS (Atlanta)\nBR (Brazil)\nJP (Tokyo)\nRU (Russia)\nSG (Singapore)');
-                            embed.addField('Creating party', 'a. region');
-                            embed.addField('Checking party', 'a.party code');
+                            embed.addField('Creating party', `${config.prefix} region`);
+                            embed.addField('Checking party', `${config.prefix}party code`);
                             msg.channel.send(embed);
                             break;
                     }
