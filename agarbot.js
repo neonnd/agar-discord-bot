@@ -121,13 +121,13 @@ bot.on('ready', () => {
                                     body = JSON.parse(body);
                                     embed = new RichEmbed();
                                     embed.setColor('RANDOM');
-                                    embed.addField('Party info', `Link: https://agar.io/#${partyToken}\nRegion: ${region}\nCode: ${partyToken}\nIP: wss://${body.endpoints.https}?party_id=${partyToken}`);
+                                    embed.addField('Party info', `Link: https://agar.io/#${partyToken}\nRegion: ${region}\nCode: ${partyToken}\nIP: ${body.endpoints.https.includes('ip') ? 'ws://' + body.endpoints.https : 'wss://' + body.endPoints.https}?party_id=${partyToken}`);
                                     msg.channel.send(embed);
                                 })
                             })
                         }
                         else {
-                            embed.addField('Party info', `Link: https://agar.io/#${body.token}\nRegion: ${region}\nCode: ${body.token}\nIP: wss://${body.endpoints.https}?party_id=${body.token}`);
+                            embed.addField('Party info', `Link: https://agar.io/#${body.token}\nRegion: ${region}\nCode: ${body.token}\nIP: ${body.endpoints.https.includes('ip') ? 'ws://' + body.endpoints.https : 'wss://' + body.endPoints.https}?party_id=${body.token}`);
                             msg.channel.send(embed);
                         }
                     });
@@ -145,7 +145,7 @@ bot.on('ready', () => {
                         body = JSON.parse(body);
                         embed = new RichEmbed();
                         embed.setColor('RANDOM');
-                        embed.addField('Party info', `IP :wss://${body.endpoints.https}?party_id=${args[1].toUpperCase()}\nStatus: ${body.status}`);
+                        embed.addField('Party info', `IP: ${body.endpoints.https.includes('ip') ? 'ws://' + body.endpoints.https : 'wss://' + body.endPoints.https}?party_id=${args[1].toUpperCase()}\nStatus: ${body.status}`);
                         msg.channel.send(embed);
                     }).catch(() => {
                         embed = new RichEmbed();
@@ -175,6 +175,11 @@ bot.on('ready', () => {
                 break;
         }
     });
+});
+
+bot.on('error', err => {
+    if (err.msg === 'ECONNRESET' || err.msg === 'ERROR' || !err.msg) return;
+    console.log(err);
 });
 
 bot.login(config.token);
