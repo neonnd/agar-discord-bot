@@ -11,7 +11,7 @@ discord bot to create/check agar.io party servers
 
 ### Commands
 
-** default prefix [ a. ] **
+**default prefix [ a. ]**
 
 * a.agar
 * a.party
