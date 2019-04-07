@@ -13,6 +13,7 @@ discord bot to create/check agar.io party servers
 
 **default prefix [ a. ]**
 
+* a.help
 * a.agar
 * a.party
 * a.ping
