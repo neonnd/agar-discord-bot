@@ -13,8 +13,8 @@ bot.on('ready', () => {
     });
     bot.user.setActivity(`${config.prefix}help`, { type: 'PLAYING' });
     bot.on('message', async msg => {
+        if (!msg.content.toLocaleLowerCase().startsWith(prefix)) return;
         if (msg.author.bot || msg.channel.type === 'dm') return;
-        if (!msg.content.startsWith(prefix)) return;
         const args = msg.content.substring(prefix.length).split(' ');
 
         switch (args[0].toLocaleLowerCase()) {
