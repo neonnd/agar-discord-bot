@@ -92,10 +92,14 @@ bot.on('ready', () => {
                             msg.channel.send(embed);
                             break;
                     }
+                    let xclientkey = await request('https://agar.io/mc/agario.js');
+                    let versionString = xclientkey.match(/(?<=versionString=")[^"]+/)[0];
+                    let versionInt = parseInt(versionString.split(".")[0]) * 10000 + parseInt(versionString.split(".")[1]) * 100 + parseInt(versionString.split(".")[2]);
+
                     request({
                         url: 'https://webbouncer-live-v6-0.agario.miniclippt.com/v4/findServer',
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'x-client-version': config.protocolKey },
+                        headers: { 'Content-Type': 'application/json', 'x-client-version': versionInt },
                         body: Buffer.from(bytes)
                     }).then(body => {
                         body = JSON.parse(body);
@@ -105,7 +109,7 @@ bot.on('ready', () => {
                             request({
                                 url: 'https://webbouncer-live-v6-0.agario.miniclippt.com/v4/createToken',
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json', 'x-client-version': config.protocolKey },
+                                headers: { 'Content-Type': 'application/json', 'x-client-version': versionInt },
                                 body: Buffer.from(rtoken)
                             }).then(body => {
                                 body = JSON.parse(body);
@@ -115,7 +119,7 @@ bot.on('ready', () => {
                                 request({
                                     url: 'https://webbouncer-live-v6-0.agario.miniclippt.com/v4/getToken',
                                     method: 'POST',
-                                    headers: { 'Content-Type': 'application/json', 'x-client-version': config.protocolKey },
+                                    headers: { 'Content-Type': 'application/json', 'x-client-version': versionInt },
                                     body: Buffer.from(bytez)
                                 }).then(body => {
                                     body = JSON.parse(body);
@@ -139,7 +143,7 @@ bot.on('ready', () => {
                     request({
                         url: 'https://webbouncer-live-v6-0.agario.miniclippt.com/v4/getToken',
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'x-client-version': config.protocolKey },
+                        headers: { 'Content-Type': 'application/json', 'x-client-version': versionInt },
                         body: Buffer.from(bytez)
                     }).then(body => {
                         body = JSON.parse(body);
