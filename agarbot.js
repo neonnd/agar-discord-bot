@@ -170,11 +170,18 @@ bot.on('ready', () => {
 
             case 'agar':
                 let webBouncer = await request('https://webbouncer-live-v6-0.agario.miniclippt.com/info');
+                let xclientkey = await request('https://agar.io/mc/agario.js');
+                let versionString = xclientkey.match(/(?<=versionString=")[^"]+/)[0];
+                let versionInt = parseInt(versionString.split(".")[0]) * 10000 + parseInt(versionString.split(".")[1]) * 100 + parseInt(versionString.split(".")[2]);
+                let init = new Uint8Array(new Uint32Array([versionInt]).buffer);
+                let corex = await request('https://agar.io/agario.core.js');
+                let protocolVersion = corex.match(/..\(f,\d+\);d=f\+/)[0].replace(/[^0-9]/g, '');
                 let agar = JSON.parse(webBouncer);
                 embed = new RichEmbed();
                 embed.setColor('RANDOM');
                 embed.addField('Agar.io PC Servers', `Servers: ${agar.totals.numServers}\n Online: ${agar.totals.numEnabledServers}\nIdle: ${agar.totals.numServers - agar.totals.numEnabledServers}`);
                 embed.addField('Players', `SG-Singapore: ${agar.regions['SG-Singapore'].numPlayers}\nUS-Atlanta: ${agar.regions['US-Atlanta'].numPlayers}\nEU-London: ${agar.regions['EU-London'].numPlayers}\nCN-China: ${agar.regions['CN-China'].numPlayers}\nBR-Brazil: ${agar.regions['BR-Brazil'].numPlayers}\nTK-Turkey: ${agar.regions['TK-Turkey'].numPlayers}\nRU-Russia: ${agar.regions['RU-Russia'].numPlayers}\nJP-Tokyo: ${agar.regions['JP-Tokyo'].numPlayers}\nTotal: ${agar.totals.numPlayers}`);
+                embed.addField('Info', `Protocol Key: ${versionInt}\nProtocol Version: ${protocolVersion}\n[ ${[ 255, init[0], init[1], init[2], init[3] ]} ]`);
                 msg.channel.send(embed);
                 break;
         }
