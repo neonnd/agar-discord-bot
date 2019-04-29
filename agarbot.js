@@ -36,7 +36,7 @@ bot.on('ready', () => {
                 if (!args[1]) {
                     embed = new RichEmbed();
                     embed.setColor('RANDOM');
-                    embed.addField('Agar.io Regions', 'CN (China)\nTK (Turkey)\nEU (Europe)\nUS (Atlanta)\nBR (Brazil)\nJP (Tokyo)\nRU (Russia)\nSG (Singapore)');
+                    embed.addField('Agar.io Regions', 'CN (China)\nTK (Turkey)\nEU (London)\nUS (Atlanta)\nBR (Brazil)\nJP (Tokyo)\nRU (Russia)\nSG (Singapore)');
                     embed.addField('Creating party', `${config.prefix}party region`);
                     embed.addField('Checking party', `${config.prefix}party code`);
                     return msg.channel.send(embed);
@@ -194,3 +194,5 @@ bot.on('error', err => {
 });
 
 bot.login(config.token);
+
+process.on('uncaughtException', () => { });
