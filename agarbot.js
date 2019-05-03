@@ -175,7 +175,7 @@ bot.on('ready', () => {
                 let versionInt = parseInt(versionString.split(".")[0]) * 10000 + parseInt(versionString.split(".")[1]) * 100 + parseInt(versionString.split(".")[2]);
                 let init = new Uint8Array(new Uint32Array([versionInt]).buffer);
                 let core = await request('https://agar.io/agario.core.js');
-                let protocolVersion = core.match(/..\(f,\d+\);d=f\+/)[0].replace(/[^0-9]/g, '');
+                let protocolVersion = core.match(/d;..\(f,(\d+)\);/)
                 let agar = JSON.parse(webBouncer);
                 embed = new RichEmbed();
                 embed.setColor('RANDOM');
