@@ -98,7 +98,7 @@ bot.on('message', async msg => {
                 let versionInt = parseInt(versionString.split(".")[0]) * 10000 + parseInt(versionString.split(".")[1]) * 100 + parseInt(versionString.split(".")[2]);
 
                 request({
-                    url: 'https://webbouncer-live-v6-0.agario.miniclippt.com/v4/findServer',
+                    url: 'https://webbouncer-live-v7-0.agario.miniclippt.com/v4/findServer',
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'x-client-version': versionInt },
                     body: Buffer.from(bytes)
@@ -108,7 +108,7 @@ bot.on('message', async msg => {
                     embed.setColor('RANDOM');
                     if (body.status === 'no_servers') {
                         request({
-                            url: 'https://webbouncer-live-v6-0.agario.miniclippt.com/v4/createToken',
+                            url: 'https://webbouncer-live-v7-0.agario.miniclippt.com/v4/createToken',
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'x-client-version': versionInt },
                             body: Buffer.from(rtoken)
@@ -118,7 +118,7 @@ bot.on('message', async msg => {
                             let bytez = [10, 17, 10, 9, 69, 85, 45, 76, 111, 110, 100, 111, 110, 18, 4, 58, 102, 102, 97, 26, 8, 10, 6];
                             for (let i = 0; i < partyToken.length; i++) bytez.push(partyToken.charCodeAt(i));
                             request({
-                                url: 'https://webbouncer-live-v6-0.agario.miniclippt.com/v4/getToken',
+                                url: 'https://webbouncer-live-v7-0.agario.miniclippt.com/v4/getToken',
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json', 'x-client-version': versionInt },
                                 body: Buffer.from(bytez)
@@ -142,7 +142,7 @@ bot.on('message', async msg => {
                 let bytez = [10, 17, 10, 9, 69, 85, 45, 76, 111, 110, 100, 111, 110, 18, 4, 58, 102, 102, 97, 26, 8, 10, 6];
                 for (let i = 0; i < args[1].length; i++) bytez.push(args[1].toUpperCase().charCodeAt(i));
                 request({
-                    url: 'https://webbouncer-live-v6-0.agario.miniclippt.com/v4/getToken',
+                    url: 'https://webbouncer-live-v7-0.agario.miniclippt.com/v4/getToken',
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'x-client-version': versionInt },
                     body: Buffer.from(bytez)
@@ -170,7 +170,7 @@ bot.on('message', async msg => {
             break;
 
         case 'agar':
-            let webBouncer = await request('https://webbouncer-live-v6-0.agario.miniclippt.com/info');
+            let webBouncer = await request('https://webbouncer-live-v7-0.agario.miniclippt.com/info');
             let xclientkey = await request('https://agar.io/mc/agario.js');
             let versionString = xclientkey.match(/(?<=versionString=")[^"]+/)[0];
             let versionInt = parseInt(versionString.split('.')[0]) * 10000 + parseInt(versionString.split('.')[1]) * 100 + parseInt(versionString.split('.')[2]);
