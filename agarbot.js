@@ -44,6 +44,7 @@ bot.on('message', async msg => {
             break;
 
         case 'agar':
+            let latestID = await request('https://webbouncer-live-v7-0.agario.miniclippt.com/getLatestID');
             let webBouncer = await request('https://webbouncer-live-v7-0.agario.miniclippt.com/info');
             var xclientkey = await request('https://agar.io/mc/agario.js');
             var versionString = xclientkey.match(/(?<=versionString=")[^"]+/)[0];
@@ -56,7 +57,7 @@ bot.on('message', async msg => {
             embed.setColor('RANDOM');
             embed.addField('Agar.io PC Servers', `Servers: ${agar.totals.numServers}\n Online: ${agar.totals.numEnabledServers}\nIdle: ${agar.totals.numServers - agar.totals.numEnabledServers}`);
             embed.addField('Players', `SG-Singapore: ${agar.regions['SG-Singapore'].numPlayers}\nUS-Atlanta: ${agar.regions['US-Atlanta'].numPlayers}\nEU-London: ${agar.regions['EU-London'].numPlayers}\nCN-China: ${agar.regions['CN-China'].numPlayers}\nBR-Brazil: ${agar.regions['BR-Brazil'].numPlayers}\nTK-Turkey: ${agar.regions['TK-Turkey'].numPlayers}\nRU-Russia: ${agar.regions['RU-Russia'].numPlayers}\nJP-Tokyo: ${agar.regions['JP-Tokyo'].numPlayers}\nTotal: ${agar.totals.numPlayers}`);
-            embed.addField('Info', `Protocol Key: ${versionInt}\nProtocol Version: ${protocolVersion}\n[ ${[255, init]} ]`);
+            embed.addField('Info', `Protocol Key: ${versionInt}\nProtocol Version: ${protocolVersion}\n[ ${[255, init]} ]\nLatestID: ${latestID}\n[Config](https://configs-web.agario.miniclippt.com/live/v12/${latestID}/GameConfiguration.json)`);
             msg.channel.send(embed);
             break;
 
