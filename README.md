@@ -15,6 +15,9 @@ discord bot to create/check agar.io party servers
 
 * a.help
 * a.agar
+* a.ffa
+* a.exp
+* a.debug
 * a.party
 * a.ping
 * a.invite
