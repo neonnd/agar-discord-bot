@@ -1,5 +1,6 @@
 const { Client, RichEmbed } = require('discord.js');
 const bot = new Client({ disableEveryone: true });
+const { murmur2 } = require('murmurhash-js');
 const request = require('request-promise');
 const config = require('./config.json');
 const { font } = require('ascii-art');
@@ -386,7 +387,7 @@ class Bot {
                     this.decryptionKey = global.versionInt ^ msg.readInt32LE(offset);
                     msg = Array.from(msg).splice(5, 11);
 
-                    this.encryptionKey = this.clientKey(this.ws.url, new Uint8Array(msg));
+                    this.encryptionKey = murmur2(this.ws.url, new Uint8Array(msg), 255);
                     break;
 
                 case 54:
@@ -437,7 +438,7 @@ class Bot {
                             mass: mass,
                         });
                     }
-                    this.minimap.sort((a, b) => { return b - a; });
+                    this.minimap.sort((a, b) => { return b.mass - a.mass; });
                     break;
             }
         };
@@ -451,28 +452,6 @@ class Bot {
         const newBuf = new Buffer.alloc(buf.byteLength);
         for (let i = 0; i < buf.byteLength; i++) newBuf.writeUInt8(buf.readUInt8(i) ^ xorKey >>> i % 4 * 8 & 255, i);
         return newBuf;
-    }
-
-    clientKey(ip, buf) {
-        for (var e = null, p = ip.match(/(ws+:\/\/)([^:]*)(:\d+)/)[2], s = p.length + buf.byteLength, o = new Uint8Array(s), a = 0; a < p.length; a++)
-            o[a] = p.charCodeAt(a);
-        o.set(buf, p.length);
-        for (var m = new DataView(o.buffer), r = s - 1, g = 0 | 4 + (-4 & r - 4), h = 255 ^ r, f = 0; 3 < r;)
-            e = 0 | Math.imul(m.getInt32(f, !0), 1540483477), h = (0 | Math.imul(e >>> 24 ^ e, 1540483477)) ^ (0 | Math.imul(h, 1540483477)), r -= 4, f += 4;
-        switch (r) {
-            case 3:
-                h = o[g + 2] << 16 ^ h, h = o[g + 1] << 8 ^ h;
-                break;
-            case 2:
-                h = o[g + 1] << 8 ^ h;
-                break;
-            case 1:
-                break;
-            default:
-                e = h;
-        }
-        e != h && (e = 0 | Math.imul(o[g] ^ h, 1540483477)), e ^= h = e >>> 13, e = 0 | Math.imul(e, 1540483477), e ^= h = e >>> 15;
-        return e;
     }
 }
 
