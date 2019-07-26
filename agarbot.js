@@ -135,7 +135,7 @@ bot.on('message', async msg => {
                 if (args[1].startsWith('#')) args[1] = args[1].split('#')[1];
                 requestV4('https://webbouncer-live-v7-0.agario.miniclippt.com/v4/getToken', global.versionInt, generateBytes(args[1], null, null, args[1]), body => {
 
-                    if (!body || !body.status) {
+                    if (!body) {
                         embed.setTitle('invalid party code');
                         return msg.channel.send(embed);
                     }
@@ -167,7 +167,7 @@ function requestV4(url, version, token, callback) {
         headers: { 'Content-Type': 'application/json', 'x-client-version': version },
         body: Buffer.from(token)
     }, (err, res, body) => {
-        if (err || !res || res.statusCode !== 200) return callback(err);
+        if (err || !res || res.statusCode !== 200) return callback(false);
         body = JSON.parse(body);
         callback(body);
     });
