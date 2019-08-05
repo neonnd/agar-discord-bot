@@ -1,6 +1,7 @@
 const { Client, RichEmbed } = require('discord.js');
 const bot = new Client({ disableEveryone: true });
 const { murmur2 } = require('murmurhash-js');
+const { getName } = require('country-list');
 const request = require('request-promise');
 const config = require('./config.json');
 const { font } = require('ascii-art');
@@ -108,6 +109,8 @@ bot.on('message', async msg => {
             embed = new RichEmbed();
             embed.setColor('RANDOM');
 
+            args[1] = args[1].toLowerCase();
+
             if (args[1].length == 2) {
 
                 requestV4('findServer', generateBytes(args[1], ':party'), body => {
@@ -171,7 +174,7 @@ function requestV4(action, token, callback) {
     });
 }
 
-function generateBytes(args = args.toLowerCase(), mode, token) {
+function generateBytes(args, mode, token) {
 
     const regions = {
         sg: 'SG-Singapore',
