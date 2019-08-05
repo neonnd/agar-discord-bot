@@ -2,8 +2,6 @@
 
 discord bot to create/check agar.io party servers
 
-# EDIT: SERVER/PARTY CREATION FEATURE IS BROKEN DUE TO AGAR.IO API UPDATE
-
 ### How to use
 * create discord application [here](https://discordapp.com/developers/applications)
 * go to bot section and press add bot
