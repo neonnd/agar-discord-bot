@@ -1,7 +1,6 @@
 const { Client, RichEmbed } = require('discord.js');
 const bot = new Client({ disableEveryone: true });
 const { murmur2 } = require('murmurhash-js');
-const { getName } = require('country-list');
 const request = require('request-promise');
 const config = require('./config.json');
 const { font } = require('ascii-art');
