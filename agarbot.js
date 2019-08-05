@@ -1,6 +1,7 @@
 const { Client, RichEmbed } = require('discord.js');
 const bot = new Client({ disableEveryone: true });
 const { murmur2 } = require('murmurhash-js');
+const { getName } = require('country-list');
 const request = require('request-promise');
 const config = require('./config.json');
 const { font } = require('ascii-art');
@@ -8,7 +9,6 @@ const WebSocket = require('ws');
 
 let embed = new RichEmbed();
 let prefix = config.prefix;
-let debug = null;
 
 bot.on('ready', async () => {
     bot.user.setActivity(`${prefix}help`, { type: 'PLAYING' });
@@ -18,10 +18,14 @@ bot.on('ready', async () => {
     var xclientkey = await request('https://agar.io/mc/agario.js');
     var versionString = xclientkey.match(/(?<=versionString=")[^"]+/)[0];
     var versionInt = parseInt(versionString.split('.')[0]) * 10000 + parseInt(versionString.split('.')[1]) * 100 + parseInt(versionString.split('.')[2]);
+    let init = new Uint8Array(new Uint32Array([versionInt]).buffer);
     let core = await request('https://agar.io/agario.core.js');
+    let protoVersion = xclientkey.match(/version","(.+)"/)[1];
     let protocolVersion = core.match(/d;..\(f,(\d+)\);/)[1];
     global.protocolVersion = protocolVersion;
+    global.protoVersion = protoVersion;
     global.versionInt = versionInt;
+    global.init = init;
 });
 
 bot.on('message', async msg => {
@@ -36,12 +40,6 @@ bot.on('message', async msg => {
             embed.addField('Bot ping', Math.round(bot.ping));
             embed.setColor('RANDOM');
             msg.channel.send(embed);
-            break;
-
-        case 'debug':
-            if (msg.author.id != 560932847808937984) return;
-            debug ? debug = false : debug = true;
-            msg.channel.send(debug);
             break;
 
         case 'help':
@@ -90,9 +88,9 @@ bot.on('message', async msg => {
             embed = new RichEmbed();
             embed.setColor('RANDOM');
 
-            requestV4('https://webbouncer-live-v7-0.agario.miniclippt.com/v4/findServer', global.versionInt, generateBytes(args[1], null, null, null, args[0] == 'ffa' ? ':ffa' : ':experimental'), body => {
+            requestV4('findServer', generateBytes(args[1], args[0] == 'ffa' ? ':ffa' : ':experimental'), body => {
                 let ip = `${body.endpoints.https.includes('ip') ? 'ws://' + body.endpoints.https : 'wss://' + body.endpoints.https}`;
-                embed.addField('Server info', `Link: https://agar.io/?sip=${body.endpoints.https}\nRegion: ${generateBytes(args[1], true)}\nIP: ${ip}`);
+                embed.addField('Server info', `Link: https://agar.io/?sip=${body.endpoints.https}\nRegion: ${generateBytes(args[1], 'region')}\nIP: ${ip}`);
                 msg.channel.send(embed);
             });
 
@@ -113,17 +111,16 @@ bot.on('message', async msg => {
 
             if (args[1].length == 2) {
 
-                requestV4('https://webbouncer-live-v7-0.agario.miniclippt.com/v4/findServer', global.versionInt, generateBytes(args[1]), body => {
+                requestV4('findServer', generateBytes(args[1], ':party'), body => {
                     if (body.status !== 'no_servers') {
-                        let ip = `${body.endpoints.https.includes('ip') ? 'ws://' + body.endpoints.https : 'wss://' + body.endpoints.https}?party_id=${body.token}`;
-                        embed.addField('Party info', `Link: https://agar.io/#${body.token}\nRegion: ${generateBytes(args[1], true)}\nCode: ${body.token}\nIP: ${ip}`);
+                        var ip = `${body.endpoints.https.includes('ip') ? 'ws://' + body.endpoints.https : 'wss://' + body.endpoints.https}?party_id=${body.token}`;
+                        embed.addField('Party info', `Link: https://agar.io/#${body.token}\nRegion: ${generateBytes(args[1], 'region')}\nCode: ${body.token}\nIP: ${ip}`);
                         msg.channel.send(embed);
                     } else {
-                        requestV4('https://webbouncer-live-v7-0.agario.miniclippt.com/v4/createToken', global.versionInt, generateBytes(args[1], null, true), body => {
+                        requestV4('createToken', generateBytes(args[1], ':party'), body => {
                             let partyToken = body.token;
-                            requestV4('https://webbouncer-live-v7-0.agario.miniclippt.com/v4/getToken', global.versionInt, generateBytes(args[1], null, null, partyToken), body => {
-                                let ip = `${body.endpoints.https.includes('ip') ? 'ws://' + body.endpoints.https : 'wss://' + body.endpoints.https}?party_id=${partyToken}`;
-                                embed.addField('Party info', `Link: https://agar.io/#${partyToken}\nRegion: ${region}\nCode: ${partyToken}\nIP: ${ip}`);
+                            requestV4('getToken', generateBytes(args[1], false, partyToken), body => {
+                                embed.addField('Party info', `Link: https://agar.io/#${partyToken}\nRegion: ${generateBytes(args[1], 'region')}\nCode: ${partyToken}\nIP: ${ip}`);
                                 msg.channel.send(embed);
                             });
                         });
@@ -131,18 +128,19 @@ bot.on('message', async msg => {
                 });
 
             } else {
+
                 if (args[2]) return;
                 if (args[1].startsWith('#')) args[1] = args[1].split('#')[1];
-                requestV4('https://webbouncer-live-v7-0.agario.miniclippt.com/v4/getToken', global.versionInt, generateBytes(args[1], null, null, args[1]), body => {
+                requestV4('getToken', generateBytes(args[1], ':party'), body => {
 
-                    if (!body) {
+                    if (!body || !body.status) {
                         embed.setTitle('invalid party code');
                         return msg.channel.send(embed);
                     }
 
                     let ip = `${body.endpoints.https.includes('ip') ? 'ws://' + body.endpoints.https : 'wss://' + body.endpoints.https}?party_id=${args[1].toUpperCase()}`;
 
-                    new Bot(ip, debug ? msg : false, (leaderboard, minimap) => {
+                    new Bot(ip, (leaderboard, minimap) => {
                         let leaderboardx = "```" + leaderboard.slice(0, 10).join('') + "```";
                         let totalMass = 0;
                         minimap.forEach(m => {
@@ -160,190 +158,63 @@ bot.on('message', async msg => {
     }
 });
 
-function requestV4(url, version, token, callback) {
+function requestV4(action, token, callback) {
     request({
-        url: url,
+        url: `https://webbouncer-live-v7-0.agario.miniclippt.com/v4/${action}`,
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-client-version': version },
+        headers: { 'Content-Type': 'application/json', 'x-client-version': global.versionInt, 'x-support-proto-version': '15.0.0' },
         body: Buffer.from(token)
-    }, (err, res, body) => {
-        if (err || !res || res.statusCode !== 200) return callback(false);
+    }).then(body => {
         body = JSON.parse(body);
         callback(body);
+    }).catch(e => {
+        callback(e);
     });
 }
 
-function generateBytes(args, region, backup, token, mode) {
+function generateBytes(args = args.toLowerCase(), mode, token) {
+
+    const regions = {
+        sg: 'SG-Singapore',
+        us: 'US-Atlanta',
+        eu: 'EU-London',
+        tk: 'TK-Turkey',
+        br: 'BR-Brazil',
+        ru: 'RU-Russia',
+        jp: 'JP-Tokyo',
+        cn: 'CN-China',
+    };
+
+    if (!regions[args]) {
+        let requestToken = [10, 17, 10, 9, 69, 85, 45, 76, 111, 110, 100, 111, 110, 18, 4, 58, 102, 102, 97, 26, 8, 10, 6];
+        for (let i = 0; i < args.length; i++) requestToken.push(args.charCodeAt(i));
+        return requestToken;
+    }
+
+    if (mode == 'region') return regions[args];
+
+    const getOwnPropertyNames = function (data) {
+        output.push(data.length);
+        for (let value = 0; value < data.length; value++) {
+            output.push(data.charCodeAt(value));
+        }
+    };
+
     if (token) {
-        let rtoken = [10, 17, 10, 9, 69, 85, 45, 76, 111, 110, 100, 111, 110, 18, 4, 58, 102, 102, 97, 26, 8, 10, 6];
-        for (let i = 0; i < token.length; i++) rtoken.push(token.charCodeAt(i));
-        return rtoken;
+        var output = [10, 4 + regions[args].length + 4, 10];
+        getOwnPropertyNames(regions[args]);
+        output.push(18);
+        getOwnPropertyNames(':ffa');
+        output.push(26, 8, 10);
+        getOwnPropertyNames(token);
+        return new Uint8Array(output);
     }
-    switch (args.toUpperCase()) {
-        case 'EU':
-            var server = 'EU-London';
-            if (mode) {
-                const getOwnPropertyNames = function (data) {
-                    output.push(data.length);
-                    for (let value = 0; value < data.length; value++) {
-                        output.push(data.charCodeAt(value));
-                    }
-                };
-                let output = [10, 4 + server.length + mode.length, 10];
-                getOwnPropertyNames(server);
-                output.push(18);
-                getOwnPropertyNames(mode);
-                return new Uint8Array(output);
-            }
-            if (region) return server;
-            var bytes = [10, 19, 10, 9];
-            for (let i = 0; i < server.length; i++) bytes.push(server.charCodeAt(i));
-            if (backup) bytes.push(58, 112, 97, 114, 116, 121, 18, 0);
-            else bytes.push(18, 6, 58, 112, 97, 114, 116, 121);
-            return bytes;
-        case 'RU':
-            server = 'RU-Russia';
-            if (mode) {
-                const getOwnPropertyNames = function (data) {
-                    output.push(data.length);
-                    for (let value = 0; value < data.length; value++) {
-                        output.push(data.charCodeAt(value));
-                    }
-                };
-                let output = [10, 4 + server.length + mode.length, 10];
-                getOwnPropertyNames(server);
-                output.push(18);
-                getOwnPropertyNames(mode);
-                return new Uint8Array(output);
-            }
-            if (region) return server;
-            bytes = [10, 19, 10, 9];
-            for (let i = 0; i < server.length; i++) bytes.push(server.charCodeAt(i));
-            if (backup) bytes.push(18, 6, 58, 112, 97, 114, 116, 121);
-            else bytes.push(18, 6, 58, 112, 97, 114, 116, 121);
-            return bytes;
-        case 'TK':
-            server = 'TK-Turkey';
-            if (mode) {
-                const getOwnPropertyNames = function (data) {
-                    output.push(data.length);
-                    for (let value = 0; value < data.length; value++) {
-                        output.push(data.charCodeAt(value));
-                    }
-                };
-                let output = [10, 4 + server.length + mode.length, 10];
-                getOwnPropertyNames(server);
-                output.push(18);
-                getOwnPropertyNames(mode);
-                return new Uint8Array(output);
-            }
-            if (region) return server;
-            bytes = [10, 19, 10, 9];
-            for (let i = 0; i < server.length; i++) bytes.push(server.charCodeAt(i));
-            if (backup) bytes.push(18, 6, 58, 112, 97, 114, 116, 12);
-            else bytes.push(18, 6, 58, 112, 97, 114, 116, 121);
-            return bytes;
-        case 'US':
-            server = 'US-Atlanta';
-            if (mode) {
-                const getOwnPropertyNames = function (data) {
-                    output.push(data.length);
-                    for (let value = 0; value < data.length; value++) {
-                        output.push(data.charCodeAt(value));
-                    }
-                };
-                let output = [10, 4 + server.length + mode.length, 10];
-                getOwnPropertyNames(server);
-                output.push(18);
-                getOwnPropertyNames(mode);
-                return new Uint8Array(output);
-            }
-            if (region) return server;
-            bytes = [10, 20, 10, 16];
-            for (let i = 0; i < server.length; i++) bytes.push(server.charCodeAt(i));
-            bytes.push(58, 112, 97, 114, 116, 121, 18, 0);
-            return bytes;
-        case 'JP':
-            server = 'JP-Tokyo';
-            if (mode) {
-                const getOwnPropertyNames = function (data) {
-                    output.push(data.length);
-                    for (let value = 0; value < data.length; value++) {
-                        output.push(data.charCodeAt(value));
-                    }
-                };
-                let output = [10, 4 + server.length + mode.length, 10];
-                getOwnPropertyNames(server);
-                output.push(18);
-                getOwnPropertyNames(mode);
-                return new Uint8Array(output);
-            }
-            if (region) return server;
-            bytes = [10, 18, 10, 14];
-            for (let i = 0; i < server.length; i++) bytes.push(server.charCodeAt(i));
-            bytes.push(58, 112, 97, 114, 116, 121, 18, 0);
-            return bytes;
-        case 'BR':
-            server = 'BR-Brazil';
-            if (mode) {
-                const getOwnPropertyNames = function (data) {
-                    output.push(data.length);
-                    for (let value = 0; value < data.length; value++) {
-                        output.push(data.charCodeAt(value));
-                    }
-                };
-                let output = [10, 4 + server.length + mode.length, 10];
-                getOwnPropertyNames(server);
-                output.push(18);
-                getOwnPropertyNames(mode);
-                return new Uint8Array(output);
-            }
-            if (region) return server;
-            bytes = [10, 19, 10, 15];
-            for (let i = 0; i < server.length; i++) bytes.push(server.charCodeAt(i));
-            bytes.push(58, 112, 97, 114, 116, 121, 18, 0);
-            return bytes;
-        case 'SG':
-            server = 'SG-Singapore';
-            if (mode) {
-                const getOwnPropertyNames = function (data) {
-                    output.push(data.length);
-                    for (let value = 0; value < data.length; value++) {
-                        output.push(data.charCodeAt(value));
-                    }
-                };
-                let output = [10, 4 + server.length + mode.length, 10];
-                getOwnPropertyNames(server);
-                output.push(18);
-                getOwnPropertyNames(mode);
-                return new Uint8Array(output);
-            }
-            if (region) return server;
-            bytes = [10, 22, 10, 18];
-            for (let i = 0; i < server.length; i++) bytes.push(server.charCodeAt(i));
-            bytes.push(58, 112, 97, 114, 116, 121, 18, 0);
-            return bytes;
-        case 'CN':
-            server = 'CN-China';
-            if (mode) {
-                const getOwnPropertyNames = function (data) {
-                    output.push(data.length);
-                    for (let value = 0; value < data.length; value++) {
-                        output.push(data.charCodeAt(value));
-                    }
-                };
-                let output = [10, 4 + server.length + mode.length, 10];
-                getOwnPropertyNames(server);
-                output.push(18);
-                getOwnPropertyNames(mode);
-                return new Uint8Array(output);
-            }
-            if (region) return server;
-            bytes = [10, 18, 10, 14];
-            for (let i = 0; i < server.length; i++) bytes.push(server.charCodeAt(i));
-            bytes.push(58, 112, 97, 114, 116, 121, 18, 0);
-            return bytes;
-    }
+
+    output = [10, 4 + regions[args].length + mode.length, 10];
+    getOwnPropertyNames(regions[args]);
+    output.push(18);
+    getOwnPropertyNames(mode);
+    return new Uint8Array(output);
 }
 
 bot.on('error', err => {
@@ -352,16 +223,13 @@ bot.on('error', err => {
 });
 
 class Bot {
-    constructor(server, debug, callback) {
+    constructor(server, callback) {
 
-        this.originalLeaderboard = [];
         this.encryptionKey = null;
         this.decryptionKey = null;
         this.callback = callback;
         this.leaderboard = [];
         this.server = server;
-        this.debug = debug;
-        this.packets = [];
         this.connect();
     }
 
@@ -370,8 +238,15 @@ class Bot {
         this.ws.binaryType = 'nodebuffer';
 
         this.ws.onopen = () => {
-            this.ws.send(new Buffer.from([254, global.protocolVersion, 0, 0, 0]));
-            this.ws.send(new Buffer.from([255, 44, 119, 0, 0]));
+            let buf = new Buffer.alloc(5);
+            buf.writeUInt8(254, 0);
+            buf.writeUInt32LE(global.protocolVersion, 1);
+            this.ws.send(buf);
+
+            buf = new Buffer.alloc(5);
+            buf.writeUInt8(255, 0);
+            buf.writeUInt32LE(global.versionInt, 1);
+            this.ws.send(buf);
         };
 
         this.ws.onmessage = msg => {
@@ -379,8 +254,6 @@ class Bot {
             let offset = 0;
 
             if (this.decryptionKey) msg = this.xor(msg, this.decryptionKey);
-
-            this.packets.push(msg[0]);
 
             switch (msg.readUInt8(offset++)) {
                 case 241:
@@ -404,17 +277,10 @@ class Bot {
                             try {
                                 if (!d || d == '' || d.toLowerCase().includes('agarbot')) this.sizrex = true;
                                 if (i >= 11) this.leaderboard.push(`${i + 1}. ${this.sizrex ? 'OP-Bots.com' : decodeURIComponent(escape(d))}\n`);
-                                else this.originalLeaderboard.push(`${i + 1}. ${decodeURIComponent(escape(d))}\n`),
-                                    this.leaderboard.push(`${i + 1}. ${this.sizrex ? 'OP-Bots.com' : decodeURIComponent(escape(d))} (${this.shortMass(this.minimap[i++].mass)})\n`);
+                                else this.leaderboard.push(`${i + 1}. ${this.sizrex ? 'OP-Bots.com' : decodeURIComponent(escape(d))} (${this.shortMass(this.minimap[i++].mass)})\n`);
                             } catch (e) { }
                         }
                         if (flag & 4) offset += 4;
-                    }
-                    if (this.debug) {
-                        this.debug.channel.send('```js\n' + this.packets + '```');
-                        this.debug.channel.send('```js\n' + JSON.stringify(this.minimap) + '```');
-                        this.debug.channel.send('```js\n' + this.originalLeaderboard.slice(0, 10).join('') + '```');
-                        return this.ws.close();
                     }
                     this.callback(this.leaderboard, this.minimap);
                     this.ws.close();
