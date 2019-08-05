@@ -1,7 +1,6 @@
 const { Client, RichEmbed } = require('discord.js');
 const bot = new Client({ disableEveryone: true });
 const { murmur2 } = require('murmurhash-js');
-const { getName } = require('country-list');
 const request = require('request-promise');
 const config = require('./config.json');
 const { font } = require('ascii-art');
@@ -109,20 +108,21 @@ bot.on('message', async msg => {
             embed = new RichEmbed();
             embed.setColor('RANDOM');
 
-            args[1] = args[1].toLowerCase();
+            let OP_Bots_Com = args[1].toLowerCase();
 
             if (args[1].length == 2) {
 
-                requestV4('findServer', generateBytes(args[1], ':party'), body => {
+                requestV4('findServer', generateBytes(OP_Bots_Com, ':party'), body => {
                     if (body.status !== 'no_servers') {
                         var ip = `${body.endpoints.https.includes('ip') ? 'ws://' + body.endpoints.https : 'wss://' + body.endpoints.https}?party_id=${body.token}`;
-                        embed.addField('Party info', `Link: https://agar.io/#${body.token}\nRegion: ${generateBytes(args[1], 'region')}\nCode: ${body.token}\nIP: ${ip}`);
+                        embed.addField('Party info', `Link: https://agar.io/#${body.token}\nRegion: ${generateBytes(OP_Bots_Com, 'region')}\nCode: ${body.token}\nIP: ${ip}`);
                         msg.channel.send(embed);
                     } else {
-                        requestV4('createToken', generateBytes(args[1], ':party'), body => {
+                        requestV4('createToken', generateBytes(OP_Bots_Com, ':party'), body => {
                             let partyToken = body.token;
-                            requestV4('getToken', generateBytes(args[1], false, partyToken), body => {
-                                embed.addField('Party info', `Link: https://agar.io/#${partyToken}\nRegion: ${generateBytes(args[1], 'region')}\nCode: ${partyToken}\nIP: ${ip}`);
+                            requestV4('getToken', generateBytes(OP_Bots_Com, false, partyToken), body => {
+                                ip = `${body.endpoints.https.includes('ip') ? 'ws://' + body.endpoints.https : 'wss://' + body.endpoints.https}?party_id=${body.token}`;
+                                embed.addField('Party info', `Link: https://agar.io/#${partyToken}\nRegion: ${generateBytes(OP_Bots_Com, 'region')}\nCode: ${partyToken}\nIP: ${ip}`);
                                 msg.channel.send(embed);
                             });
                         });
