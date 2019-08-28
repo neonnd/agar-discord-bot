@@ -289,8 +289,10 @@ class Bot {
                                 d += String.fromCharCode(x);
                             }
                             if (!d || d == '' || d.toLowerCase().match(/agarbot|morebots/)) this.sizrex = true;
-                            if (i >= 11) this.leaderboard.push(`${i + 1}. ${this.sizrex ? 'OP-Bots.com' : decodeURIComponent(escape(d))}\n`);
-                            else this.leaderboard.push(`${i + 1}. ${this.sizrex ? 'OP-Bots.com' : decodeURIComponent(escape(d))} (${this.shortMass(this.minimap[i++].mass)})\n`);
+                            try {
+                                if (i >= 11) this.leaderboard.push(`${i + 1}. ${this.sizrex ? 'OP-Bots.com' : decodeURIComponent(escape(d))}\n`);
+                                else this.leaderboard.push(`${i + 1}. ${this.sizrex ? 'OP-Bots.com' : decodeURIComponent(escape(d))} (${this.shortMass(this.minimap[i++].mass)})\n`);
+                            } catch (e) { }
                         }
                         if (flag & 4) offset += 4;
                         if (flag & 16) this.friendsCounter++;
