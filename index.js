@@ -75,7 +75,7 @@ bot.on('message', async msg => {
             TK-Turkey: ${agar.regions['TK-Turkey'].numPlayers}\nRU-Russia: ${agar.regions['RU-Russia'].numPlayers}\nJP-Tokyo: ${agar.regions['JP-Tokyo'].numPlayers}
             Total: ${agar.totals.numPlayers}`);
             embed.addField('Info', `Proto Version: ${protoVersion}\nProtocol Key: ${versionInt}\nProtocol Version: ${protocolVersion}\n[ ${[255, init]} ]
-            LatestID: ${latestID}\n[Config](https://configs-web.agario.miniclippt.com/live/v12/${latestID}/GameConfiguration.json)`);
+            LatestID: ${latestID}\n[Config](https://configs-web.agario.miniclippt.com/live/v15/${latestID}/GameConfiguration.json)`);
             msg.channel.send(embed);
             break;
 
