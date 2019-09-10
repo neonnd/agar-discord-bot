@@ -57,8 +57,8 @@ bot.on('message', async msg => {
             break;
 
         case 'agar':
-            let latestID = await request('https://webbouncer-live-v7-0.agario.miniclippt.com/getLatestID');
-            let webBouncer = await request('https://webbouncer-live-v7-0.agario.miniclippt.com/info');
+            let latestID = await request('https://webbouncer-live-v8-0.agario.miniclippt.com/getLatestID');
+            let webBouncer = await request('https://webbouncer-live-v8-0.agario.miniclippt.com/info');
             let xclientkey = await request('https://agar.io/mc/agario.js');
             let versionString = xclientkey.match(/(?<=versionString=")[^"]+/)[0];
             const { groups: { protoVersion } } = /proto-version.+?"(?<protoVersion>\d+.+?)"/gm.exec(xclientkey);
@@ -75,7 +75,7 @@ bot.on('message', async msg => {
             TK-Turkey: ${agar.regions['TK-Turkey'].numPlayers}\nRU-Russia: ${agar.regions['RU-Russia'].numPlayers}\nJP-Tokyo: ${agar.regions['JP-Tokyo'].numPlayers}
             Total: ${agar.totals.numPlayers}`);
             embed.addField('Info', `Proto Version: ${protoVersion}\nProtocol Key: ${versionInt}\nProtocol Version: ${protocolVersion}\n[ ${[255, init]} ]
-            LatestID: ${latestID}\n[Config](https://configs-web.agario.miniclippt.com/live/v15/${latestID}/GameConfiguration.json)`);
+            LatestID: ${latestID}\n[Config](https://configs-web.agario.miniclippt.com/live/v12/${latestID}/GameConfiguration.json)`);
             msg.channel.send(embed);
             break;
 
@@ -167,7 +167,7 @@ bot.on('message', async msg => {
 
 function requestV4(action, token, callback) {
     request({
-        url: `https://webbouncer-live-v7-0.agario.miniclippt.com/v4/${action}`,
+        url: `https://webbouncer-live-v8-0.agario.miniclippt.com/v4/${action}`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -289,10 +289,8 @@ class Bot {
                                 d += String.fromCharCode(x);
                             }
                             if (!d || d == '' || d.toLowerCase().match(/agarbot|morebots/)) this.sizrex = true;
-                            try {
-                                if (i >= 11) this.leaderboard.push(`${i + 1}. ${this.sizrex ? 'OP-Bots.com' : decodeURIComponent(escape(d))}\n`);
-                                else this.leaderboard.push(`${i + 1}. ${this.sizrex ? 'OP-Bots.com' : decodeURIComponent(escape(d))} (${this.shortMass(this.minimap[i++].mass)})\n`);
-                            } catch (e) { }
+                            if (i >= 11) this.leaderboard.push(`${i + 1}. ${this.sizrex ? 'OP-Bots.com' : decodeURIComponent(escape(d))}\n`);
+                            else this.leaderboard.push(`${i + 1}. ${this.sizrex ? 'OP-Bots.com' : decodeURIComponent(escape(d))} (${this.shortMass(this.minimap[i++].mass)})\n`);
                         }
                         if (flag & 4) offset += 4;
                         if (flag & 16) this.friendsCounter++;
