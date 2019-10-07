@@ -1,6 +1,10 @@
+<img width="150" height="150" align="left" style="float: left; margin: 0 10px 0 0;" alt="Agar.io discord bot" src="https://cdn.discordapp.com/avatars/603138922532438037/32f44588657a7ee8c539f0286441f637.webp?size=512">  
+
 # Agar.io discord bot
 
-discord bot to create/check agar.io party servers
+> discord bot to create/check agar.io party servers [invite link](https://discordapp.com/oauth2/authorize?client_id=603138922532438037&scope=bot&permissions=7232)
+
+##
 
 ### How to use
 * create discord application [here](https://discordapp.com/developers/applications)
