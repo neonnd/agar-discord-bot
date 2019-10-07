@@ -2,7 +2,7 @@
 
 # Agar.io discord bot
 
-> discord bot to create/check agar.io party servers [invite link](https://discordapp.com/oauth2/authorize?client_id=603138922532438037&scope=bot&permissions=7232)
+> discord bot to create/check agar.io party servers. [invite link](https://discordapp.com/oauth2/authorize?client_id=603138922532438037&scope=bot&permissions=7232)
 
 ##
 
