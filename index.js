@@ -1,19 +1,17 @@
-const { Client, RichEmbed } = require('discord.js');
+const { Client, MessageEmbed } = require('discord.js');
 const bot = new Client({ disableEveryone: true });
 const { murmur2 } = require('murmurhash-js');
 const request = require('request-promise');
 const config = require('./config.json');
-const { font } = require('ascii-art');
 const WebSocket = require('ws');
+require('colour');
 
-let embed = new RichEmbed();
+let embed = new MessageEmbed();
 let prefix = config.prefix;
 
 bot.on('ready', async () => {
     bot.user.setActivity(`${prefix}help`, { type: 'PLAYING' });
-    font('AgarBot', 'Doom', art => {
-        console.log(art);
-    });
+    console.log('Ready'.green);
     let xclientkey = await request('https://agar.io/mc/agario.js');
     let versionString = xclientkey.match(/(?<=versionString=")[^"]+/)[0];
     const { groups: { protoVersion } } = /proto-version.+?"(?<protoVersion>\d+.+?)"/gm.exec(xclientkey);
@@ -35,21 +33,21 @@ bot.on('message', async msg => {
     switch (args[0].toLocaleLowerCase()) {
 
         case 'ping':
-            embed = new RichEmbed();
-            embed.addField('Bot ping', Math.round(bot.ping));
+            embed = new MessageEmbed();
+            embed.addField('Bot ping', Math.round(bot.ws.ping));
             embed.setColor('RANDOM');
             msg.channel.send(embed);
             break;
 
         case 'help':
-            embed = new RichEmbed();
+            embed = new MessageEmbed();
             embed.addField('Commands', `${prefix}party\n${prefix}ffa\n${prefix}exp\n${prefix}agar\n${prefix}invite\n${prefix}ping`);
             embed.setColor('RANDOM');
             msg.channel.send(embed);
             break;
 
         case 'invite':
-            embed = new RichEmbed();
+            embed = new MessageEmbed();
             embed.setColor('RANDOM');
             embed.setTitle('Bot Invite Link');
             embed.setURL(`https://discordapp.com/oauth2/authorize?client_id=${bot.user.id}&scope=bot&permissions=7232`);
@@ -67,7 +65,7 @@ bot.on('message', async msg => {
             let core = await request('https://agar.io/agario.core.js');
             let protocolVersion = core.match(/d;..\(.,(\d+)\);/)[1];
             let agar = JSON.parse(webBouncer);
-            embed = new RichEmbed();
+            embed = new MessageEmbed();
             embed.setColor('RANDOM');
             embed.addField('Agar.io PC Servers', `Servers: ${agar.totals.numServers}\n Online: ${agar.totals.numEnabledServers}\nIdle: ${agar.totals.numServers - agar.totals.numEnabledServers}`);
             embed.addField('Players', `SG-Singapore: ${agar.regions['SG-Singapore'].numPlayers}\nUS-Atlanta: ${agar.regions['US-Atlanta'].numPlayers}
@@ -82,14 +80,14 @@ bot.on('message', async msg => {
         case 'ffa':
         case 'exp':
             if (!args[1] || !args[1].toUpperCase().match(/EU|RU|TK|CN|US|JP|BR|SG/)) {
-                embed = new RichEmbed();
+                embed = new MessageEmbed();
                 embed.setColor('RANDOM');
                 embed.addField('Agar.io Regions', 'CN (China)\nTK (Turkey)\nEU (London)\nUS (Atlanta)\nBR (Brazil)\nJP (Tokyo)\nRU (Russia)\nSG (Singapore)');
                 embed.addField('Usage', `${prefix}gamemode region`);
                 return msg.channel.send(embed);
             }
 
-            embed = new RichEmbed();
+            embed = new MessageEmbed();
             embed.setColor('RANDOM');
 
             requestV4('findServer', generateBytes(args[1], args[0] == 'ffa' ? ':ffa' : ':experimental'), body => {
@@ -102,7 +100,7 @@ bot.on('message', async msg => {
 
         case 'party':
             if (!args[1] || args[1].length == 2 && !args[1].toUpperCase().match(/EU|RU|TK|CN|US|JP|BR|SG/)) {
-                embed = new RichEmbed();
+                embed = new MessageEmbed();
                 embed.setColor('RANDOM');
                 embed.addField('Agar.io Regions', 'CN (China)\nTK (Turkey)\nEU (London)\nUS (Atlanta)\nBR (Brazil)\nJP (Tokyo)\nRU (Russia)\nSG (Singapore)');
                 embed.addField('Creating party', `${prefix}party region`);
@@ -110,7 +108,7 @@ bot.on('message', async msg => {
                 return msg.channel.send(embed);
             }
 
-            embed = new RichEmbed();
+            embed = new MessageEmbed();
             embed.setColor('RANDOM');
 
 
