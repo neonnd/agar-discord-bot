@@ -6,6 +6,8 @@
 
 ##
 
+### !!! OUTDATED !!!
+
 ### How to use
 * create discord application [here](https://discordapp.com/developers/applications)
 * go to bot section and press add bot
